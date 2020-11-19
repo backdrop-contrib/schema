@@ -6,31 +6,6 @@
  */
 
 /**
- * Implements hooK_help().
- */
-function schema_help($path, $arg) {
-  switch ($path) {
-    case 'admin/structure/schema':
-      return '<p>' . t('This page compares the live database as it currently exists against the combination of all schema information provided by all enabled modules.') . '<p>';
-
-    case 'admin/structure/schema/describe':
-      return '<p>' . t("This page describes the Drupal database schema. Click on a table name to see that table's description and fields. Table names within a table or field description are hyperlinks to that table's description.") . '</p>';
-
-    case 'admin/structure/schema/inspect':
-      $output = '<p>' . t("This page shows the live database schema as it currently exists on this system. Known tables are grouped by the module that defines them; unknown tables are all grouped together.") . '</p>';
-      $output .= '<p>' . t("To implement hook_schema() for a module that has existing tables, copy the schema structure for those tables directly into the module's hook_schema() and return \$schema.") . '</p>';
-      return $output;
-
-    case 'admin/structure/schema/sql':
-      return '<p>' . t('This page shows the CREATE TABLE statements that the Schema API generates for the selected database engine for each table defined by a module. It is for debugging purposes.') . '</p>';
-
-    case 'admin/structure/schema/show':
-      return '<p>' . t('This page displays the Drupal database schema data structure. It is for debugging purposes.') . '</p>';
-  }
-
-}
-
-/**
  * Implements hook_permission().
  */
 function schema_permission() {
@@ -48,7 +23,7 @@ function schema_menu() {
   $items['admin/structure/schema'] = array(
     'title' => 'Schema',
     'description' => 'Manage the database schema for this system.',
-    'page callback' => 'drupal_get_form',
+    'page callback' => 'backdrop_get_form',
     'page arguments' => array('schema_compare'),
     'access arguments' => array('administer schema'),
     'file' => 'schema.pages.inc',
@@ -61,7 +36,7 @@ function schema_menu() {
   $items['admin/structure/schema/describe'] = array(
     'title' => 'Describe',
     'type' => MENU_LOCAL_TASK,
-    'page callback' => 'drupal_get_form',
+    'page callback' => 'backdrop_get_form',
     'page arguments' => array('schema_describe'),
     'weight' => -8,
     'access arguments' => array('administer schema'),
@@ -70,7 +45,7 @@ function schema_menu() {
   $items['admin/structure/schema/inspect'] = array(
     'title' => 'Inspect',
     'type' => MENU_LOCAL_TASK,
-    'page callback' => 'drupal_get_form',
+    'page callback' => 'backdrop_get_form',
     'page arguments' => array('schema_inspect'),
     'weight' => -6,
     'access arguments' => array('administer schema'),
@@ -111,7 +86,7 @@ function schema_menu() {
   $items['admin/structure/schema/settings'] = array(
     'title' => 'Settings',
     'type' => MENU_LOCAL_TASK,
-    'page callback' => 'drupal_get_form',
+    'page callback' => 'backdrop_get_form',
     'page arguments' => array('schema_settings_form'),
     'weight' => 50,
     'access arguments' => array('administer schema'),
@@ -119,6 +94,27 @@ function schema_menu() {
   );
 
   return $items;
+}
+
+/**
+ * Implements hook_config_info().
+ */
+function schema_config_info() {
+  $prefixes['schema.settings'] = array(
+    'label' => t('Schema settings'),
+    'group' => t('Configuration'),
+  );
+  return $prefixes;
+}
+
+/**
+ * Implements hook_autoload_info().
+ */
+function schema_autoload_info() {
+  return array(
+    'SchemaDatabaseSchema_mysql' => 'engines/mysql.inc',
+    'SchemaDatabaseSchema_pgsql' => 'engines/pgsql.inc',
+  );
 }
 
 /**
@@ -154,7 +150,7 @@ function schema_get_connection_engine_class($connection = 'default') {
  */
 function schema_dbobject($connection = NULL) {
   if (!isset($connection)) {
-    $connection = variable_get('schema_database_connection', 'default');
+    $connection = config_get('schema.settings', 'schema_database_connection');
   }
 
   if ($class = schema_get_connection_engine_class($connection)) {
@@ -166,7 +162,7 @@ function schema_dbobject($connection = NULL) {
  * Get an array of connection options that are supported by schema inspection.
  */
 function schema_get_connection_options() {
-  $options = &drupal_static(__FUNCTION__);
+  $options = &backdrop_static(__FUNCTION__);
 
   if (!isset($options)) {
     foreach ($GLOBALS['databases'] as $connection => $targets) {
@@ -321,7 +317,7 @@ function schema_phpprint_key($keys) {
  *   The unprefixed table name.
  */
 function schema_unprefix_table($name, $connection = NULL) {
-  $prefixes = &drupal_static(__FUNCTION__, array());
+  $prefixes = &backdrop_static(__FUNCTION__, array());
 
   if (!isset($connection)) {
     $connection = Database::getConnection();
@@ -380,7 +376,7 @@ function schema_schema_type($type, $table, $field, $engine = NULL) {
     return explode(':', $map[$type]);
   }
   else {
-    if (!variable_get('schema_suppress_type_warnings', FALSE)) {
+    if (!config_get('schema.settings', 'schema_suppress_type_warnings')) {
       trigger_error(t('@table.@field: no schema type for @engine type @type.', array('@engine' => $engine, '@type' => $type, '@table' => $table, '@field' => $field)), E_USER_WARNING);
     }
     return array($type, 'normal');
@@ -407,7 +403,7 @@ function schema_compare_schemas($ref, $inspect = NULL) {
   // Error check: column type and default type must match
   foreach ($ref as $t_name => $table) {
     if (!isset($table['fields']) || !is_array($table['fields'])) {
-      drupal_set_message(t('Table %table: Missing or invalid \'fields\' array.', array('%table' => $t_name)), 'warning');
+      backdrop_set_message(t('Table %table: Missing or invalid \'fields\' array.', array('%table' => $t_name)), 'warning');
       continue;
     }
 
@@ -640,17 +636,17 @@ function field_schema_field_type_map_alter(array &$map, DatabaseSchema $schema, 
       if (!isset($map[$generic_type])) {
         // Use engine specific type if it exists.
         $map[$generic_type] = isset($col[$db_type]) ? $col[$db_type] : $col['type'];
-        $map[$generic_type] = drupal_strtoupper($map[$generic_type]);
+        $map[$generic_type] = backdrop_strtoupper($map[$generic_type]);
       }
     }
   }
 }
 
 /**
- * A copy of drupal_get_schema() optimized for schema module use.
+ * A copy of backdrop_get_schema() optimized for schema module use.
  */
 function schema_get_schema() {
-  $schema = &drupal_static(__FUNCTION__);
+  $schema = &backdrop_static(__FUNCTION__);
 
   if (!isset($schema)) {
     $schema = array();
@@ -664,11 +660,11 @@ function schema_get_schema() {
       $current = (array) module_invoke($module, 'schema');
       // Set 'module' and 'name' keys for each table. Keep descriptions,
       // they are slow but very useful for this module.
-      _drupal_schema_initialize($current, $module, FALSE);
+      _backdrop_schema_initialize($current, $module, FALSE);
       $schema = array_merge($schema, $current);
     }
 
-    drupal_alter('schema', $schema);
+    backdrop_alter('schema', $schema);
   }
 
   return $schema;

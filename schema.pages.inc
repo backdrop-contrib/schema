@@ -12,7 +12,7 @@
  * into HTML.
  *
  * @todo Convert this into a true page callback. Somehow fieldsets do not work
- * without being used with drupal_get_form().
+ * without being used with backdrop_get_form().
  */
 function schema_compare() {
   $build = array();
@@ -36,7 +36,7 @@ function schema_compare() {
   // Get those out of the way first
   if (isset($info['warn'])) {
     foreach ($info['warn'] as $message) {
-      drupal_set_message(filter_xss($message), 'warning');
+      backdrop_set_message(filter_xss($message), 'warning');
     }
     unset($info['warn']);
   }
@@ -119,7 +119,7 @@ function schema_compare() {
  * "Describe" menu callback.
  *
  * @todo Convert this into a true page callback. Somehow fieldsets do not work
- * without being used with drupal_get_form().
+ * without being used with backdrop_get_form().
  */
 function schema_describe() {
   $build = array();
@@ -156,14 +156,14 @@ function schema_describe() {
         $row[] = filter_xss($desc);
       }
       else {
-        drupal_set_message(_schema_process_description(t('Field {@table}.@field has no description.', array('@table' => $t_name, '@field' => $c_name))), 'warning');
+        backdrop_set_message(_schema_process_description(t('Field {@table}.@field has no description.', array('@table' => $t_name, '@field' => $c_name))), 'warning');
         $row[] = t('Description not found.');
       }
       $rows[] = $row;
     }
 
     if (empty($t_spec['description']) || $t_spec['description'] == $default_table_description) {
-      drupal_set_message(_schema_process_description(t('Table {@table} has no description.', array('@table' => $t_name))), 'warning');
+      backdrop_set_message(_schema_process_description(t('Table {@table} has no description.', array('@table' => $t_name))), 'warning');
     }
 
     $build[$t_name] = array(
@@ -189,7 +189,7 @@ function schema_describe() {
  * "Inspect" menu callback.
  *
  * @todo Convert this into a true page callback. Somehow fieldsets do not work
- * without being used with drupal_get_form().
+ * without being used with backdrop_get_form().
  */
 function schema_inspect() {
   $build = array();
@@ -248,7 +248,7 @@ function schema_sql($engine = NULL) {
 /**
  * "Show" menu callback.
  *
- * Displays drupal schema as php code, so you can reuse it
+ * Displays Backdrop schema as php code, so you can reuse it
  * as you need.
  */
 function schema_show() {

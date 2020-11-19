@@ -1,4 +1,5 @@
 name = Schema test
-core = 7.x
+backdrop = 1.x
+type = module
 hidden = TRUE
 files[] = SchemaTestDatabaseConnection.php

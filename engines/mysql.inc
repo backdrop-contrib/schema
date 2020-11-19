@@ -54,10 +54,10 @@ class SchemaDatabaseSchema_mysql extends DatabaseSchema_mysql {
    * Overrides DatabaseSchema_mysql::getFieldTypeMap().
    */
   public function getFieldTypeMap() {
-    $map = &drupal_static('SchemaDatabaseSchema_mysql::getFieldTypeMap');
+    $map = &backdrop_static('SchemaDatabaseSchema_mysql::getFieldTypeMap');
     if (!isset($map)) {
       $map = parent::getFieldTypeMap();
-      drupal_alter('schema_field_type_map', $map, $this, $this->connection);
+      backdrop_alter('schema_field_type_map', $map, $this, $this->connection);
     }
     return $map;
   }

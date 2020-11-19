@@ -16,7 +16,7 @@
 function schema_requirements($phase) {
   $reqs = array();
   $t = get_t();
-  if ($phase == 'runtime' && variable_get('schema_status_report', TRUE)) {
+  if ($phase == 'runtime' && config_get('schema.settings', 'schema_status_report')) {
     $schema = schema_get_schema();
     $info = schema_compare_schemas($schema);
     // make sure these are defined in increasing-severity order
@@ -69,14 +69,6 @@ function schema_requirements($phase) {
   }
 
   return $reqs;
-}
-
-/**
- * Implementation of hook_uninstall(),
- */
-function schema_uninstall() {
-  variable_del('schema_status_report');
-  variable_del('schema_suppress_type_warnings');
 }
 
 /**

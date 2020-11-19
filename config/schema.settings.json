@@ -1,0 +1,6 @@
+{
+  "_config_name": "schema.settings",
+  "schema_database_connection": "default",
+  "schema_status_report": true,
+  "schema_suppress_type_warnings": false
+}
