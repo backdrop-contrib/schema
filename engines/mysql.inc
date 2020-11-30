@@ -6,6 +6,16 @@
  */
 
 class SchemaDatabaseSchema_mysql extends DatabaseSchema_mysql {
+
+  /**
+   * {@inheritdoc}
+   */
+  public function __construct($connection) {
+    parent::__construct($connection);
+    // Read the version data to know how to interpret information_schema.
+    $this->readVersionData();
+  }
+
   /**
    * Retrieve generated SQL to create a new table from a Drupal schema definition.
    *
@@ -110,7 +120,7 @@ class SchemaDatabaseSchema_mysql extends DatabaseSchema_mysql {
     }
 
     $sql = 'SELECT table_name, column_type, column_name, column_default,
-                   extra, is_nullable, numeric_scale, column_comment
+                   extra, is_nullable, numeric_scale, column_comment, data_type
             FROM information_schema.columns
             WHERE table_schema=:database ';
     if (isset($table_name)) {
@@ -122,7 +132,7 @@ class SchemaDatabaseSchema_mysql extends DatabaseSchema_mysql {
     foreach ($res as $r) {
       $r->new_table_name = schema_unprefix_table($r->table_name, $this->connection);
 
-      $numeric = !is_null($r->numeric_scale);
+      $numeric = $this->isColumnNumeric($r);
       $col = array();
       $col['type'] = $r->column_type;
       if (preg_match('@([a-z]+)(?:\((\d+)(?:,(\d+))?\))?\s*(unsigned)?@', $col['type'], $matches)) {
@@ -145,14 +155,9 @@ class SchemaDatabaseSchema_mysql extends DatabaseSchema_mysql {
         $col['type'] = 'serial';
       }
       $col['not null'] = ($r->is_nullable == 'YES' ? FALSE : TRUE);
-      if (! is_null($r->column_default)) {
-        if ($numeric) {
-          // XXX floats!
-          $col['default'] = intval($r->column_default);
-        }
-        else {
-          $col['default'] = $r->column_default;
-        }
+      $column_default = $this->getColumnDefault($r);
+      if (! is_null($column_default)) {
+        $col['default'] = $column_default;
       }
       $col['description'] = $r->column_comment;
       $tables[$r->table_name]['fields'][$r->column_name] = $col;
@@ -223,6 +228,132 @@ class SchemaDatabaseSchema_mysql extends DatabaseSchema_mysql {
     }
 
     return $tables;
+  }
+
+  /**
+   * Returns whether the column record is for a numeric field.
+   *
+   * @param $record
+   *   The information_schema database record object.
+   *
+   * @return bool
+   *   TRUE if the record is numeric; FALSE otherwise.
+   */
+  protected function isColumnNumeric($record) {
+    return !is_null($record->numeric_scale);
+  }
+
+  /**
+   * Returns the column default from the information_schema record.
+   *
+   * @param $record
+   *   The information_schema database record object.
+   *
+   * @return mixed
+   *   The column's default value.
+   */
+  protected function getColumnDefault($record) {
+    // Is it safer to read the version suffix or use a partial match?
+    if (stripos($this->version, '-MariaDB') !== FALSE) {
+      $default = $this->getMariaDBColumnDefault($record);
+    }
+    else {
+      $default = $record->column_default;
+    }
+    if (!is_null($default) && $this->isColumnNumeric($record)) {
+      // XXX floats!
+      $default = intval($default);
+    }
+    return $default;
+  }
+
+  /**
+   * Return the column default from a MariaDB information_schema record.
+   *
+   * From MariaDB 10.2.7, literals are quoted to distinguish them from
+   * expressions. NULL means that the column has no default. In MariaDB 10.2.6
+   * and earlier, no quotes were used for any type of default and NULL can
+   * either mean that there is no default, or that the default column value is
+   * NULL.
+   *
+   * @param $record
+   *   The information_schema database record object.
+   *
+   * @return mixed
+   *   The column's default value.
+   *
+   * @see https://mariadb.com/kb/en/library/information-schema-columns-table/
+   * @see https://jira.mariadb.org/browse/MDEV-13132
+   */
+  protected function getMariaDBColumnDefault($record) {
+    $default = $record->column_default;
+
+    // v10.2.7+: The string 'NULL' indicates an explicit NULL default value;
+    // an actual NULL value indicates no default value.
+    // <v10.2.7: An actual NULL value is used to indicate both an explicit NULL
+    // default value and not having a default value set.
+    if ($default == 'NULL' || is_null($default)) {
+      return NULL;
+    }
+
+    if (version_compare($this->version, '10.2.7', '<')) {
+      return $default;
+    }
+
+    // Not all types are quoted, this list was made by looking at the changes to
+    // default values in the following commit and might not be complete:
+    // https://github.com/MariaDB/server/commit/291411c96ceb914950731df6c36b32fc83b58acf
+    $affected_types = [
+      'binary',
+      'char',
+      'longtext',
+      'varchar',
+      'date',
+      'datetime',
+      'time',
+      'timestamp',
+      'enum',
+      'set',
+    ];
+    if (!in_array($record->data_type, $affected_types)) {
+      return $default;
+    }
+
+    // Strip the quotes if present and show a warning if not.
+    $stripped = $this->stripSingleQuotes($default);
+    if ($stripped == $default) {
+      // Maybe it's an expression?
+      backdrop_set_message(t("Schema can't handle one or more of the default values"), 'warning', FALSE);
+    }
+
+    return $stripped;
+  }
+
+  /**
+   * Read the version data from the database and cache it.
+   */
+  protected function readVersionData() {
+    $sql = "SHOW VARIABLES WHERE Variable_name IN ('version', 'version_comment')";
+    $res = $this->connection->query($sql)->fetchAllKeyed(0);
+    $this->version = $res['version'];
+    $this->versionComment = $res['version_comment'];
+  }
+
+  /**
+   * Attempt to strip single quotes from a string.
+   *
+   * @param string $string
+   *   The string to be stripped.
+   *
+   * @return string
+   *   The stripped string if it is wrapped in single quotes; the original
+   *   string otherwise.
+   */
+  protected function stripSingleQuotes($string) {
+    if (backdrop_substr($string, 0, 1) == "'" && backdrop_substr($string, -1) == "'") {
+      return backdrop_substr($string, 1, -1);
+    }
+    return $string;
   }
 
 }
