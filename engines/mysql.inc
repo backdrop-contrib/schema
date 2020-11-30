@@ -17,7 +17,7 @@ class SchemaDatabaseSchema_mysql extends DatabaseSchema_mysql {
   }
 
   /**
-   * Retrieve generated SQL to create a new table from a Drupal schema definition.
+   * Retrieve generated SQL to create a table from a Backdrop schema definition.
    *
    * @param $name
    *   The name of the table to create.

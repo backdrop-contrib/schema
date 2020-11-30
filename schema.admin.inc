@@ -13,7 +13,7 @@ function schema_settings_form($form, &$form_state) {
     '#title' => t('Database connection to use'),
     '#default_value' => config_get('schema.settings', 'schema_database_connection'),
     '#options' => $connection_options,
-    '#description' => t('If you use a secondary database other than the default Drupal database you can select it here and use schema\'s "compare" and "inspect" functions on that other database.'),
+    '#description' => t('If you use a secondary database other than the default Backdrop database you can select it here and use schema\'s "compare" and "inspect" functions on that other database.'),
     '#access' => count($connection_options) > 1,
   );
   $form['schema_status_report'] = array(

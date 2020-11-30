@@ -9,7 +9,7 @@
  * Alter the results from the getFieldTypeMap() methods in the schema class.
  *
  * @param array $map
- *   The array mapping of Drupal schema field names to DB-native field types.
+ *   The array mapping of Backdrop schema field names to DB-native field types.
  * @param DatabaseSchema $schema
  *   The database schema class.
  * @param DatabaseConnection $connection

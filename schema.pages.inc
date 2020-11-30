@@ -259,5 +259,5 @@ function schema_show() {
 }
 
 function _schema_process_description($desc) {
-  return preg_replace('@{([a-z_]+)}@i', '<a href="#" onclick="Drupal.toggleFieldset($(\'#table-$1\')[0]); return false;">$1</a>', $desc);
+  return preg_replace('@{([a-z_]+)}@i', '<a href="#" onclick="Backdrop.toggleFieldset($(\'#table-$1\')[0]); return false;">$1</a>', $desc);
 }

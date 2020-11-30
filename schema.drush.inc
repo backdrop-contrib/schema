@@ -13,7 +13,7 @@ function schema_drush_command() {
 
   // the key in the $items array is the name of the command.
   $items['schema-inspect'] = array(
-    'description' => "Show the Drupal schema definition for table(s)",
+    'description' => 'Show the Backdrop schema definition for table(s)',
     'arguments' => array(
       'tables' => 'A comma delimited list of table names',
     ),
@@ -43,7 +43,7 @@ function schema_drush_command() {
 function schema_drush_help($section) {
   switch ($section) {
     case 'drush:schema-inspect':
-      return dt("Show the Drupal schema definition for table(s).");
+      return dt('Show the Backdrop schema definition for table(s).');
     case 'drush:schema-compare':
       return dt("List tables that match, mismatch, are missing or are extra.");
   }
