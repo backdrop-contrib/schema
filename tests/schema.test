@@ -5,38 +5,23 @@
  * Defines SchemaUnitTestCase.
  */
 
+/**
+ * Schema module unit tests.
+ */
 class SchemaUnitTestCase extends DrupalWebTestCase {
   protected $profile = 'testing';
 
-  public static function getInfo() {
-    return array(
-      'name' => 'Schema functional tests',
-      'description' => 'Schema functional tests',
-      'group' => 'Schema',
-    );
-  }
-
-  function setUp() {
+  /**
+   * Set up.
+   */
+  public function setUp() {
     parent::setUp('schema', 'schema_test');
   }
 
-  /*function testGetFieldTypeMap() {
-    $type = $this->drupalCreateContentType();
-
-    $field = array(
-      'field_name' => 'field_schema_test',
-      'type' => 'schema_test',
-    );
-    field_create_field($field);
-
-    $instance = array(
-      'field_name' => 'field_schema_test',
-      'entity_type' => 'node',
-      'bundle' => $type->type,
-    );
-  }*/
-
-  function testUnprefixTable() {
+  /**
+   * Test unprefix table.
+   */
+  public function testUnprefixTable() {
     $cases = array();
 
     // Test without any prefixes.
@@ -111,4 +96,5 @@ class SchemaUnitTestCase extends DrupalWebTestCase {
       $this->assertIdentical($result, $name);
     }
   }
+
 }

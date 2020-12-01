@@ -2,4 +2,3 @@ name = Schema test
 backdrop = 1.x
 type = module
 hidden = TRUE
-files[] = SchemaTestDatabaseConnection.php

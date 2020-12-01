@@ -1,0 +1,11 @@
+[SchemaUnitTestCase]
+name = 'Schema functional tests'
+description = 'Schema functional tests'
+group = Schema
+file = schema.test
+
+[SchemaRegressionTest]
+name = 'Schema Regression Tests'
+description = 'Schema Regression Tests'
+group = Schema
+file = schema_regression.test

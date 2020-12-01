@@ -24,6 +24,6 @@ function schema_test_schema() {
  * Implements hook_schema_alter().
  */
 function schema_test_schema_alter(&$schema) {
-  $alter = variable_get('schema_test_schema_alter', array());
-  $schema = drupal_array_merge_deep($schema, $alter);
+  $alter = array();
+  $schema = backdrop_array_merge_deep($schema, $alter);
 }

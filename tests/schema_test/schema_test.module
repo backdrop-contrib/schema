@@ -2,5 +2,14 @@
 
 /**
  * @file
- * A placeholder for the schema_test.install for the Schema module.
+ * Main code for the Schema module.
  */
+
+/**
+ * Implements hook_autoload_info().
+ */
+function schema_test_autoload_info() {
+  return array(
+    'SchemaTestDatabaseConnection' => 'SchemaTestDatabaseConnection.php',
+  );
+}
