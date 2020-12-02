@@ -73,7 +73,7 @@ function drush_schema_inspect() {
 /*
  * Implements drush_hook_COMMAND_validate().
  */
-function drush_schema_compare_validate($type) {
+function drush_schema_compare_validate($type = '') {
 
   // Define the possible table types.
   $types = array(
@@ -87,7 +87,7 @@ function drush_schema_compare_validate($type) {
   if (!in_array($type, $types)) {
     return drush_set_error(
       'ERROR_TYPE_INVALID',
-      dt('You must specify a valid table type.')
+      dt('You must specify a valid table type. Valid types are: match, mismatch, missing, extra')
     );
   }
 }
