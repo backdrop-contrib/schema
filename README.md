@@ -8,10 +8,14 @@ Schema can also examine the live database and create Schema API data structures
 
 ## Installation
 
-Install this module using the [official Backdrop CMS instructions](https://backdropcms.org/guide/modules)
+Install this module using the [official Backdrop CMS instructions](https://backdropcms.org/guide/modules).
 
-Visit admin/structure/schema to get a full report and find possible
-mismatches.
+Visit admin/structure/schema to get a full report and find possible mismatches.
+
+
+## Issues
+
+Bugs and feature requests should be reported in the [Issue Queue](https://github.com/backdrop-contrib/schema/issues).
 
 
 ## Current maintainers
