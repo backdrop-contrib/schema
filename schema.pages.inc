@@ -253,7 +253,7 @@ function schema_sql($engine = NULL) {
  */
 function schema_show() {
   $schema = schema_get_schema();
-  $show = var_export($schema, 1);
+  $show = var_export($schema, TRUE);
 
   return "<textarea style=\"width:100%\" rows=\"30\">$show</textarea>";
 }

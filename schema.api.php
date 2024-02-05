@@ -17,7 +17,7 @@
  *   $schema->connection as a public property.
  */
 function hook_schema_field_type_map_alter(array &$map, DatabaseSchema $schema, DatabaseConnection $connection) {
-  switch ($connection->getType()) {
+  switch ($connection->databaseType()) {
     case 'mysql':
       $map['datetime:normal'] = 'DATETIME';
       break;

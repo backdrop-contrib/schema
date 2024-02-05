@@ -1,5 +1,4 @@
 <?php
-
 /**
  * @file
  * The Schema module provides functionality built on the Schema API.
@@ -123,7 +122,7 @@ function schema_autoload_info() {
  * @param string $connection
  *   A database connection key, defaults to 'default'.
  *
- * @return
+ * @return string|false
  *   The schema engine class name if available, otherwise FALSE.
  */
 function schema_get_connection_engine_class($connection = 'default') {

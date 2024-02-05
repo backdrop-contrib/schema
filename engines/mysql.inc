@@ -8,6 +8,16 @@
 class SchemaDatabaseSchema_mysql extends DatabaseSchema_mysql {
 
   /**
+   * @var string
+   */
+  protected $version;
+
+  /**
+   * @var string
+   */
+  protected $versionComment;
+
+  /**
    * {@inheritdoc}
    */
   public function __construct($connection) {
@@ -19,14 +29,14 @@ class SchemaDatabaseSchema_mysql extends DatabaseSchema_mysql {
   /**
    * Retrieve generated SQL to create a table from a Backdrop schema definition.
    *
-   * @param $name
+   * @param string $name
    *   The name of the table to create.
-   * @param $table
+   * @param array $table
    *   A Schema API table definition array.
-   * @return
+   * @return array
    *   An array of SQL statements to create the table.
    */
-  public function getCreateTableSql($name, $table) {
+  public function getCreateTableSql($name, array $table) {
     return parent::createTableSql($name, $table);
   }
 
@@ -75,14 +85,14 @@ class SchemaDatabaseSchema_mysql extends DatabaseSchema_mysql {
   /**
    * Retrieves the schema for the database's actual structure.
    *
-   * @param $connection
+   * @param string|null $connection
    *  (optional) The name of a database connection. If omitted, 'default' is
    *  used.
-   * @param $table_name
+   * @param string|null $table_name
    *  (optional) The name of a table to limit the returned data to. If omitted,
    *  data on all tables is returned.
    *
-   * @return
+   * @return array
    *  An array of data about the database, in the same format as used by the
    *  Schema API.
    */

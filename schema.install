@@ -1,16 +1,16 @@
 <?php
+/**
+ * @file
+ * Install, update and uninstall functions for the schema module.
+ */
 
 /**
-* @file
-* Install, update and uninstall functions for the schema module.
-*/
-
-/**
- * Implementation of hook_requirements().
- * Checks installation requirements and do status reporting.
- * @param phase 'install': ignored (no installation requirements)
- *              'runtime': status reporting for database
- * @return A keyed array of requirements
+ * Implements hook_requirements().
+ *
+ * @param string $phase
+ *   Only phase "runtime" is handled.
+ * @return array<string, array<string, mixed>>
+ *
  * @see schema_compare_schemas()
  */
 function schema_requirements($phase) {
@@ -72,8 +72,8 @@ function schema_requirements($phase) {
 }
 
 /**
- * Moved menu callbacks to include files.
+ * Implements hook_update_last_removed().
  */
-function schema_update_7100() {
-  variable_set('menu_rebuild_needed', TRUE);
+function schema_update_last_removed() {
+  return 7100;
 }
